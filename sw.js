@@ -1,14 +1,14 @@
-const CACHE_NAME = 'nashrah-pwa-v1';
+const CACHE_NAME = 'nashrah-pwa-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './css/style.css',
-  './js/app.js',
+  './style.css',
+  './app.js',
   './manifest.webmanifest',
-  './assets/fonts/ArefRuqaa-Bold.ttf',
-  './assets/images/malam-logo.png',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png'
+  './ArefRuqaa-Bold.ttf',
+  './malam-logo.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
