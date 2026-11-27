@@ -1,0 +1,100 @@
+@font-face {
+  font-family: 'NashrahLogo';
+  src: url('../assets/fonts/ArefRuqaa-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Base Newspaper Aesthetics - Defaulting to Attached Font */
+body {
+  background-color: #F4F1EA;
+  color: #1A1A1A;
+  background-image: radial-gradient(rgba(26, 26, 26, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+  font-family: 'NashrahLogo', 'Cairo', 'IBM Plex Sans Arabic', sans-serif;
+  letter-spacing: 0;
+}
+
+body.font-mode-custom,
+body.font-mode-custom .font-sans,
+body.font-mode-custom .font-headline,
+body.font-mode-custom input,
+body.font-mode-custom textarea,
+body.font-mode-custom select,
+body.font-mode-custom button {
+  font-family: 'NashrahLogo', 'Cairo', 'IBM Plex Sans Arabic', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+body.font-mode-clear,
+body.font-mode-clear .font-sans,
+body.font-mode-clear input,
+body.font-mode-clear textarea,
+body.font-mode-clear select,
+body.font-mode-clear button {
+  font-family: 'IBM Plex Sans Arabic', 'Cairo', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+body.font-mode-clear .font-headline {
+  font-family: 'Cairo', 'IBM Plex Sans Arabic', sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+/* Tab States */
+.tab-btn {
+  color: #57524A;
+}
+.tab-btn.active {
+  background-color: #1A1A1A;
+  color: #F4F1EA;
+}
+
+/* Newspaper Masthead Custom Font (Always uses attached font) */
+.font-masthead {
+  font-family: 'NashrahLogo', 'Cairo', serif !important;
+  letter-spacing: 0 !important;
+}
+
+/* Newspaper Grid Cell Borders (RTL) */
+.day-cell {
+  border-bottom: 1px solid #1A1A1A;
+  border-left: 1px solid #1A1A1A;
+}
+
+/* Article Entry Styling */
+.article-item {
+  transition: background-color 0.15s ease;
+}
+.article-item:hover {
+  background-color: rgba(26, 26, 26, 0.045);
+}
+
+/* Export Mode Overrides (used during html2canvas capture) */
+.export-capture-portrait {
+  width: 560px !important;
+  max-width: 560px !important;
+  padding: 28px !important;
+}
+.export-capture-portrait #newspaper-grid {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+.export-capture-portrait .day-cell {
+  grid-column: span 1 / span 1 !important;
+}
+
+.export-capture-landscape {
+  width: 1280px !important;
+  max-width: 1280px !important;
+  padding: 40px !important;
+}
+.export-capture-landscape #newspaper-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+}
+.export-capture-landscape .day-cell-top {
+  grid-column: span 4 / span 4 !important;
+}
+.export-capture-landscape .day-cell-bottom {
+  grid-column: span 3 / span 3 !important;
+}

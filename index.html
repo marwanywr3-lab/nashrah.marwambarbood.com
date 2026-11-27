@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نَشْرَة — جريدتك الأسبوعية لتدوين اليوميات</title>
+  <meta name="theme-color" content="#1A1A1A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="نَشْرَة" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+
+  <!-- Google Fonts for Clear Font Mode -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            newsprint: '#F4F1EA',
+            newsprintDark: '#EAE5D9',
+            ink: '#1A1A1A',
+            inkMuted: '#57524A',
+            rule: '#C8C0B0'
+          },
+          fontFamily: {
+            sans: ['NashrahLogo', 'Cairo', 'IBM Plex Sans Arabic', 'sans-serif'],
+            headline: ['NashrahLogo', 'Cairo', 'IBM Plex Sans Arabic', 'sans-serif'],
+            masthead: ['NashrahLogo', 'Cairo', 'serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- html2canvas for High-DPI Newspaper Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Custom Newspaper Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-newsprint text-ink font-sans font-mode-custom min-h-screen flex flex-col selection:bg-ink selection:text-newsprint">
+
+  <!-- Top Navigation & Controls (Hidden in Image Export) -->
+  <header class="no-export sticky top-0 z-30 bg-newsprint/95 backdrop-blur border-b border-rule">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-3">
+      <!-- Brand Mini Mark -->
+      <div class="flex items-center gap-3">
+        <button id="btn-brand-home" type="button" class="font-masthead text-3xl text-ink leading-none pt-1 focus:outline-none" title="نَشْرَة">نَشْرَة</button>
+        <span class="hidden md:inline-block text-xs text-inkMuted border-r border-rule pr-3">جريدتك الأسبوعية</span>
+      </div>
+
+      <!-- Main Tabs -->
+      <nav class="flex items-center bg-newsprintDark/80 p-1 rounded-lg border border-rule" aria-label="التنقل الرئيسي">
+        <button id="tab-btn-editor" type="button" data-tab="editor" class="tab-btn active px-3 sm:px-5 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all">
+          غرفة التحرير
+        </button>
+        <button id="tab-btn-newspaper" type="button" data-tab="newspaper" class="tab-btn px-3 sm:px-5 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all">
+          الجريدة الأسبوعية
+        </button>
+      </nav>
+
+      <!-- Font Toggle, Install PWA & Settings Trigger -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="btn-install-pwa" type="button" class="hidden inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md bg-ink text-newsprint hover:bg-ink/90 text-xs sm:text-sm font-medium transition-colors" title="تثبيت تطبيق نشرة على جهازك">
+          <span>تثبيت التطبيق</span>
+        </button>
+        <button id="btn-toggle-font-quick" type="button" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md border border-rule bg-newsprint hover:bg-newsprintDark text-xs sm:text-sm font-medium transition-colors" title="التبديل بين خط الرقعة والخط الواضح">
+          <span id="font-toggle-quick-label">الخط الواضح</span>
+        </button>
+
+        <button id="btn-open-settings" type="button" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md border border-rule bg-newsprint hover:bg-newsprintDark text-xs sm:text-sm font-medium transition-colors" aria-label="الإعدادات">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span class="hidden sm:inline">الإعدادات</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ==================== VIEW 1: EDITOR (غرفة التحرير) ==================== -->
+    <section id="view-editor" class="space-y-8">
+      <div class="max-w-3xl mx-auto">
+        <!-- Editorial Header -->
+        <div class="text-center mb-6">
+          <p class="text-xs uppercase text-inkMuted mb-1">مساحة الكتابة والنشر التراكمي</p>
+          <h1 class="font-headline text-2xl sm:text-3xl font-bold text-ink">غرفة التحرير</h1>
+          <div class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-newsprintDark border border-rule text-xs sm:text-sm text-ink">
+            <span class="w-2 h-2 rounded-full bg-emerald-700"></span>
+            <span id="editor-today-label">اليوم</span>
+            <span class="text-rule">|</span>
+            <span id="editor-issue-label" class="font-semibold">العدد #1</span>
+          </div>
+        </div>
+
+        <!-- Writing Card -->
+        <form id="editor-form" class="bg-newsprint border-2 border-ink p-5 sm:p-8 shadow-[6px_6px_0px_#1A1A1A] space-y-5">
+          <div>
+            <label for="entry-subtitle" class="block text-sm font-semibold text-ink mb-1.5">
+              عنوان فرعي <span class="text-xs font-normal text-inkMuted">(اختياري — مثال: إنجاز اليوم، موقف، خاطرة)</span>
+            </label>
+            <input
+              id="entry-subtitle"
+              type="text"
+              maxlength="120"
+              placeholder="اكتب عنواناً موجزاً للفقرة..."
+              class="w-full px-3.5 py-2.5 bg-white/70 border border-rule focus:border-ink focus:bg-white focus:outline-none text-ink placeholder:text-inkMuted/60 text-sm sm:text-base transition-colors"
+            />
+          </div>
+
+          <div>
+            <label for="entry-content" class="block text-sm font-semibold text-ink mb-1.5">
+              نص التدوينة
+            </label>
+            <textarea
+              id="entry-content"
+              rows="6"
+              required
+              placeholder="ماذا حدث اليوم؟ دوّن خلاصة يومك أو لحظة تستحق البقاء في عدد هذا الأسبوع..."
+              class="w-full px-3.5 py-3 bg-white/70 border border-rule focus:border-ink focus:bg-white focus:outline-none text-ink placeholder:text-inkMuted/60 text-sm sm:text-base leading-relaxed resize-y transition-colors"
+            ></textarea>
+            <p class="mt-1.5 text-xs text-inkMuted">
+              يُضاف كل نشر جديد كفقرة مستقلة مع طابعها الزمني أسفل تدوينات اليوم دون مسح ما سبق.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-rule">
+            <button
+              type="submit"
+              id="btn-publish"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-ink text-newsprint hover:bg-ink/90 active:translate-y-0.5 font-headline font-bold text-sm sm:text-base transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+              <span>نشر في الجريدة</span>
+            </button>
+
+            <button
+              type="button"
+              id="btn-goto-newspaper"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 border border-ink text-ink hover:bg-newsprintDark text-xs sm:text-sm font-semibold transition-colors"
+            >
+              <span>معاينة الجريدة الأسبوعية</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <!-- Today's Cumulative Feed Preview -->
+        <div class="mt-8">
+          <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-4">
+            <h2 class="font-headline text-lg font-bold text-ink">ما نُشر في خانة اليوم حتى الآن</h2>
+            <span id="today-count-badge" class="text-xs font-semibold px-2.5 py-0.5 bg-newsprintDark border border-rule text-ink">0 تدوينة</span>
+          </div>
+          <div id="editor-today-list" class="space-y-3">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: WEEKLY NEWSPAPER (الجريدة الأسبوعية) ==================== -->
+    <section id="view-newspaper" class="hidden space-y-5">
+
+      <!-- Archive & Export Toolbar (Hidden in Image Export) -->
+      <div class="no-export flex flex-col md:flex-row md:items-center justify-between gap-3 bg-newsprintDark/60 border border-rule p-3 sm:p-4">
+        <!-- Issue Navigation -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-prev-week" type="button" class="inline-flex items-center gap-1 px-3 py-1.5 bg-newsprint border border-rule hover:border-ink text-xs sm:text-sm font-medium transition-colors" title="الأسبوع السابق">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            <span>السابق</span>
+          </button>
+
+          <select id="issue-select" aria-label="اختر العدد" class="px-3 py-1.5 bg-newsprint border border-rule focus:border-ink focus:outline-none text-xs sm:text-sm font-semibold text-ink">
+            <!-- Populated dynamically -->
+          </select>
+
+          <button id="btn-next-week" type="button" class="inline-flex items-center gap-1 px-3 py-1.5 bg-newsprint border border-rule hover:border-ink text-xs sm:text-sm font-medium transition-colors" title="الأسبوع التالي">
+            <span>التالي</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <button id="btn-current-week" type="button" class="hidden px-3 py-1.5 bg-ink text-newsprint text-xs font-semibold hover:bg-ink/90 transition-colors">
+            الأسبوع الحالي
+          </button>
+        </div>
+
+        <!-- Export Newspaper Button -->
+        <div class="flex items-center gap-2">
+          <button id="btn-open-export" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ink text-newsprint hover:bg-ink/90 text-xs sm:text-sm font-headline font-bold transition-colors w-full md:w-auto cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>حفظ الجريدة كصورة</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable / Capturable Newspaper Sheet -->
+      <article id="newspaper-capture" class="bg-newsprint border border-rule p-4 sm:p-8 lg:p-10 shadow-sm">
+
+        <!-- Masthead (الترويسة) -->
+        <header class="text-center pb-4">
+          <div class="flex items-center justify-between text-[11px] sm:text-xs text-inkMuted mb-2 border-b border-rule pb-2">
+            <span>يومية أسبوعية مستقلة</span>
+            <span>تُكتب يوماً بيوم · تُقرأ أسبوعاً بأسبوع</span>
+          </div>
+
+          <!-- Custom Font Logo -->
+          <h1 class="font-masthead text-6xl sm:text-7xl md:text-8xl text-ink leading-[1.2] py-2 select-none">
+            نَشْرَة
+          </h1>
+
+          <!-- Editable Subtitle -->
+          <div class="mt-1 flex items-center justify-center gap-1.5 group">
+            <input
+              id="masthead-subtitle-input"
+              type="text"
+              maxlength="80"
+              value="نشرتي الأسبوعية"
+              aria-label="العنوان الفرعي للجريدة"
+              class="text-center bg-transparent border-b border-transparent hover:border-rule focus:border-ink focus:outline-none font-headline text-sm sm:text-base font-semibold text-inkMuted focus:text-ink px-2 py-0.5 transition-colors w-64 sm:w-80"
+            />
+            <span class="no-export text-inkMuted/60 group-hover:text-ink transition-colors" title="انقر لتعديل العنوان الفرعي">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </span>
+          </div>
+
+          <!-- Classic Double Rule & Issue Metadata -->
+          <div class="mt-4 border-t-[3px] border-b border-ink py-2 px-1 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm font-semibold text-ink">
+            <span id="masthead-issue-number">العدد #1</span>
+            <span id="masthead-week-title" class="text-center">الأسبوع الرابع من نوفمبر 2026</span>
+            <span id="masthead-date-range" class="text-inkMuted font-normal">21 - 27 نوفمبر 2026</span>
+          </div>
+          <div class="border-b border-ink mt-[3px]"></div>
+        </header>
+
+        <!-- 7-Day Newspaper Grid (3 cols top row + 4 cols bottom row on large screens; 1 col on mobile) -->
+        <div id="newspaper-grid" class="mt-6 grid grid-cols-1 lg:grid-cols-12 border-t border-r border-ink">
+          <!-- 7 Day Columns injected here by JS -->
+        </div>
+
+        <!-- Subtle Newspaper Bottom Colophon -->
+        <div class="mt-6 pt-3 border-t border-rule flex items-center justify-between text-[11px] text-inkMuted">
+          <span>جريدة نَشْرَة الأسبوعية</span>
+          <span id="newspaper-stats">0 تدوينة في هذا العدد</span>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- Official Footer & Attribution -->
+  <footer class="no-export mt-auto border-t border-rule bg-newsprintDark/50 py-5 px-4">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-inkMuted">
+      <span>تم التطوير بواسطة <strong class="text-ink font-semibold">مَعْلَم</strong></span>
+      <a
+        href="https://m3lm.marwanbarbood.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center hover:opacity-80 transition-opacity"
+        title="زيارة موقع مَعْلَم الرسمي"
+      >
+        <img
+          src="assets/images/malam-logo.png"
+          alt="شعار مَعْلَم"
+          class="h-7 w-auto object-contain"
+        />
+      </a>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL: EDIT / DELETE ENTRY ==================== -->
+  <div id="modal-edit-entry" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]">
+    <div class="bg-newsprint border-2 border-ink w-full max-w-lg p-5 sm:p-6 shadow-[8px_8px_0px_#1A1A1A] space-y-4">
+      <div class="flex items-center justify-between border-b border-rule pb-3">
+        <h3 class="font-headline text-lg font-bold text-ink">تعديل أو حذف التدوينة</h3>
+        <button type="button" class="close-modal text-inkMuted hover:text-ink p-1" data-modal="modal-edit-entry" aria-label="إغلاق">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="edit-entry-form" class="space-y-4">
+        <input type="hidden" id="edit-entry-day" />
+        <input type="hidden" id="edit-entry-id" />
+
+        <div>
+          <label for="edit-entry-subtitle" class="block text-xs font-semibold text-ink mb-1">العنوان الفرعي (اختياري)</label>
+          <input id="edit-entry-subtitle" type="text" maxlength="120" class="w-full px-3 py-2 bg-white border border-rule focus:border-ink focus:outline-none text-sm" />
+        </div>
+
+        <div>
+          <label for="edit-entry-content" class="block text-xs font-semibold text-ink mb-1">نص التدوينة</label>
+          <textarea id="edit-entry-content" rows="5" required class="w-full px-3 py-2 bg-white border border-rule focus:border-ink focus:outline-none text-sm leading-relaxed"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-rule">
+          <button type="button" id="btn-delete-entry" class="px-3.5 py-2 text-xs sm:text-sm font-semibold text-red-700 hover:bg-red-50 border border-red-300 transition-colors">
+            حذف الفقرة
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" class="close-modal px-4 py-2 text-xs sm:text-sm border border-rule hover:border-ink transition-colors" data-modal="modal-edit-entry">إلغاء</button>
+            <button type="submit" class="px-5 py-2 text-xs sm:text-sm font-bold bg-ink text-newsprint hover:bg-ink/90 transition-colors">حفظ التعديل</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: EXPORT IMAGE SIZE ==================== -->
+  <div id="modal-export-image" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]">
+    <div class="bg-newsprint border-2 border-ink w-full max-w-md p-5 sm:p-6 shadow-[8px_8px_0px_#1A1A1A] space-y-5">
+      <div class="flex items-center justify-between border-b border-rule pb-3">
+        <h3 class="font-headline text-lg font-bold text-ink">حفظ الجريدة كصورة</h3>
+        <button type="button" class="close-modal text-inkMuted hover:text-ink p-1" data-modal="modal-export-image" aria-label="إغلاق">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-sm text-inkMuted">اختر مقاس الصورة المناسب للتحميل بجودة عالية (High-DPI):</p>
+
+      <div class="grid grid-cols-1 gap-3">
+        <button id="btn-export-portrait" type="button" class="flex items-center gap-4 p-4 border-2 border-rule hover:border-ink bg-white/60 hover:bg-white text-right transition-all cursor-pointer">
+          <div class="w-9 h-14 border-2 border-ink bg-newsprint flex-shrink-0 flex items-center justify-center text-[10px] font-bold">9:16</div>
+          <div>
+            <div class="font-headline font-bold text-ink text-sm sm:text-base">صورة طولية (للجوال والستوري)</div>
+            <div class="text-xs text-inkMuted mt-0.5">ترتيب عمودي مريح للقراءة على الهاتف مع الترويسة وكامل الأيام.</div>
+          </div>
+        </button>
+
+        <button id="btn-export-landscape" type="button" class="flex items-center gap-4 p-4 border-2 border-rule hover:border-ink bg-white/60 hover:bg-white text-right transition-all cursor-pointer">
+          <div class="w-14 h-9 border-2 border-ink bg-newsprint flex-shrink-0 flex items-center justify-center text-[10px] font-bold">16:9</div>
+          <div>
+            <div class="font-headline font-bold text-ink text-sm sm:text-base">صورة عرضية (للأجهزة العرضية والطباعة)</div>
+            <div class="text-xs text-inkMuted mt-0.5">شبكة الجريدة الكاملة (3 + 4 أعمدة) بتصميم صحفي عريض.</div>
+          </div>
+        </button>
+      </div>
+
+      <div id="export-progress" class="hidden text-center text-xs font-semibold text-ink py-2 bg-newsprintDark border border-rule">
+        جاري تجهيز الصورة عالية الدقة وتضمين الخطوط...
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS (الإعدادات) ==================== -->
+  <div id="modal-settings" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]">
+    <div class="bg-newsprint border-2 border-ink w-full max-w-lg p-5 sm:p-6 shadow-[8px_8px_0px_#1A1A1A] space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-rule pb-3">
+        <h3 class="font-headline text-lg font-bold text-ink">إعدادات الجريدة والهوية</h3>
+        <button type="button" class="close-modal text-inkMuted hover:text-ink p-1" data-modal="modal-settings" aria-label="إغلاق">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Font Selector (Attached Font vs Clear Font) -->
+      <div class="p-4 border border-rule bg-white/50 space-y-2.5">
+        <h4 class="font-headline font-bold text-sm text-ink">خط الموقع والقراءة</h4>
+        <p class="text-xs text-inkMuted">يعمل الموقع افتراضياً بخط الرقعة، ويمكنك التبديل إلى الخط الواضح لسهولة القراءة الطويلة (يبقى شعار «نَشْرَة» بخط الرقعة دائماً).</p>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button id="btn-font-custom" type="button" class="px-3 py-2 border-2 border-ink bg-ink text-newsprint text-xs sm:text-sm font-semibold transition-all cursor-pointer">
+            خط الرقعة (الافتراضي)
+          </button>
+          <button id="btn-font-clear" type="button" class="px-3 py-2 border-2 border-rule bg-newsprint text-ink hover:border-ink text-xs sm:text-sm font-semibold transition-all cursor-pointer">
+            الخط الواضح
+          </button>
+        </div>
+      </div>
+
+      <!-- PWA Install Section -->
+      <div class="p-4 border border-rule bg-white/50 space-y-2">
+        <h4 class="font-headline font-bold text-sm text-ink">تثبيت التطبيق (PWA)</h4>
+        <p class="text-xs text-inkMuted">يمكنك تثبيت «نَشْرَة» كتطبيق مستقل على هاتفك أو جهازك والعمل به حتى دون اتصال بالإنترنت.</p>
+        <button id="btn-install-pwa-settings" type="button" class="hidden inline-flex items-center gap-2 px-4 py-2 bg-ink text-newsprint hover:bg-ink/90 text-xs sm:text-sm font-semibold transition-colors cursor-pointer">
+          <span>تثبيت التطبيق الآن</span>
+        </button>
+        <p id="pwa-install-hint" class="text-[11px] text-inkMuted">على آيفون/أندرويد: افتح قائمة المتصفح واختر «إضافة إلى الشاشة الرئيسية» عند استضافة الموقع.</p>
+      </div>
+
+      <!-- Custom Logo PNG Export -->
+      <div class="p-4 border border-rule bg-white/50 space-y-2">
+        <h4 class="font-headline font-bold text-sm text-ink">الهوية البصرية</h4>
+        <p class="text-xs text-inkMuted">تصدير شعار "نَشْرَة" بالخط المخصص كصورة شفافة عالية الدقة.</p>
+        <button id="btn-download-logo-png" type="button" class="inline-flex items-center gap-2 px-4 py-2 bg-ink text-newsprint hover:bg-ink/90 text-xs sm:text-sm font-semibold transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>تحميل شعار نشرة (PNG شفاف)</span>
+        </button>
+      </div>
+
+      <!-- JSON Backup & Restore -->
+      <div class="p-4 border border-rule bg-white/50 space-y-3">
+        <h4 class="font-headline font-bold text-sm text-ink">النسخ الاحتياطي (JSON)</h4>
+        <p class="text-xs text-inkMuted">احفظ نسخة من تدويناتك على جهازك أو استعدها في أي وقت.</p>
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-export-json" type="button" class="px-3.5 py-2 border border-ink text-ink hover:bg-newsprintDark text-xs sm:text-sm font-semibold transition-colors cursor-pointer">
+            تصدير نسخة احتياطية (JSON)
+          </button>
+          <label class="px-3.5 py-2 border border-ink text-ink hover:bg-newsprintDark text-xs sm:text-sm font-semibold transition-colors cursor-pointer">
+            <span>استيراد نسخة احتياطية (JSON)</span>
+            <input id="input-import-json" type="file" accept=".json,application/json" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Demo & Reset -->
+      <div class="p-4 border border-rule bg-white/50 space-y-3">
+        <h4 class="font-headline font-bold text-sm text-ink">أدوات المعاينة والبيانات</h4>
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-seed-demo" type="button" class="px-3.5 py-2 border border-rule hover:border-ink text-ink text-xs sm:text-sm font-medium transition-colors cursor-pointer">
+            تعبئة أسبوع تجريبي للمعاينة
+          </button>
+          <button id="btn-clear-all" type="button" class="px-3.5 py-2 border border-red-300 text-red-700 hover:bg-red-50 text-xs sm:text-sm font-medium transition-colors cursor-pointer">
+            مسح جميع البيانات
+          </button>
+        </div>
+        <div id="confirm-clear-box" class="hidden p-3 bg-red-50 border border-red-300 space-y-2">
+          <p class="text-xs font-semibold text-red-800">هل أنت متأكد؟ سيتم حذف جميع التدوينات المحفوظة نهائياً.</p>
+          <div class="flex gap-2">
+            <button id="btn-confirm-clear" type="button" class="px-3 py-1 bg-red-700 text-white text-xs font-bold">نعم، احذف الكل</button>
+            <button id="btn-cancel-clear" type="button" class="px-3 py-1 border border-rule bg-white text-xs">تراجع</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="no-export fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-2.5 bg-ink text-newsprint text-xs sm:text-sm font-semibold shadow-lg border border-newsprint/20">
+    تم التنفيذ
+  </div>
+
+  <!-- Hidden Offscreen Canvas for Logo PNG Export -->
+  <canvas id="logo-export-canvas" class="hidden"></canvas>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
